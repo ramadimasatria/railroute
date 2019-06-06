@@ -38,6 +38,7 @@ class SearchForm extends React.Component<Props, State> {
 
   render() {
     const { props, state } = this;
+    const disabled = props.disabled || !state.origin || !state.destination;
 
     return (
       <form className="SearchForm" onSubmit={this.submitHandler}>
@@ -83,7 +84,7 @@ class SearchForm extends React.Component<Props, State> {
           </div>
 
           <div className="SearchForm-field">
-            <Button type="submit" appearance="primary" intent="success" disabled={props.disabled}>
+            <Button type="submit" appearance="primary" intent="success" disabled={disabled}>
               Search Routes
             </Button>
           </div>

@@ -1,84 +1,30 @@
 import React from 'react';
+import { connect } from 'react-redux';
 // @ts-ignore
 import { Text } from 'evergreen-ui';
-import SearchForm from './components/SearchForm';
-import ResultList from './components/ResultList';
-import { Result, Station } from './types';
-import StationManager from './StationManager';
+import { RootState } from './store/reducers';
+import SearchFormContainer from './components/SearchFormContainer';
+import ResultListContainer from './components/ResultListContainer';
+
 import './App.css';
 
-type Props = {
-  stationManager: StationManager;
-};
-
-type State = {
-  stations: string[];
+interface Props {
   isLoading: boolean;
-  origin?: {
-    name: string;
-    stations: Station[];
-  };
-  destination?: {
-    name: string;
-    stations: Station[];
-  };
-  results: Result[];
-};
-
-class App extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      stations: props.stationManager.getStationNames(),
-      isLoading: false,
-      results: []
-    };
-
-    this.submitHandler = this.submitHandler.bind(this);
-  }
-
-  async submitHandler(originName: string, destName: string) {
-    const { stationManager } = this.props;
-
-    this.setState({
-      origin: {
-        name: originName,
-        stations: stationManager.getStationsByName(originName)
-      },
-      destination: {
-        name: destName,
-        stations: stationManager.getStationsByName(destName)
-      },
-      isLoading: true,
-      results: []
-    });
-
-    const results = await stationManager.findRoutes(originName, destName);
-    const sortedResults = results.slice().sort((a, b) => {
-      const scoreA = a.numberOfStations + 5 * a.numberOfTransits;
-      const scoreB = b.numberOfStations + 5 * b.numberOfTransits;
-
-      return scoreA - scoreB;
-    });
-
-    this.setState({ isLoading: false, results: sortedResults });
-  }
-
-  render() {
-    const { stations, results, isLoading } = this.state;
-
-    return (
-      <div className="app">
-        <SearchForm stations={stations} onSubmit={this.submitHandler} disabled={isLoading} />
-
-        <div className="container">
-          {isLoading && <Text>Finding routes...</Text>}
-          {results.length > 0 && <ResultList results={results} />}
-        </div>
-      </div>
-    );
-  }
+  results: any[];
 }
 
-export default App;
+const App: React.FC<Props> = props => (
+  <div className="app">
+    <SearchFormContainer />
+
+    <div className="container">
+      {props.isLoading && <Text>Finding results...</Text>}
+      {props.results.length > 0 && !props.isLoading && <ResultListContainer />}
+    </div>
+  </div>
+);
+
+export default connect((state: RootState) => ({
+  isLoading: state.app.isLoading,
+  results: state.app.results
+}))(App);
