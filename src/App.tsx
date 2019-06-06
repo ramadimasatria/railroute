@@ -2,95 +2,71 @@ import React from 'react';
 // @ts-ignore
 import { Text } from 'evergreen-ui';
 import SearchForm from './components/SearchForm';
-import ResultList, { Result } from './components/ResultList';
+import ResultList from './components/ResultList';
+import { Result, Station } from './types';
+import StationManager from './StationManager';
 import './App.css';
 
+type Props = {
+  stationManager: StationManager;
+};
+
 type State = {
+  stations: string[];
   isLoading: boolean;
-  origin: string;
-  destination: string;
+  origin?: {
+    name: string;
+    stations: Station[];
+  };
+  destination?: {
+    name: string;
+    stations: Station[];
+  };
   results: Result[];
 };
 
-class App extends React.Component<{}, State> {
-  constructor(props: {}) {
+class App extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
+      stations: props.stationManager.getStationNames(),
       isLoading: false,
-      origin: '',
-      destination: '',
       results: []
     };
 
     this.submitHandler = this.submitHandler.bind(this);
   }
 
-  submitHandler(origin: string, destination: string) {
+  async submitHandler(originName: string, destName: string) {
+    const { stationManager } = this.props;
+
     this.setState({
-      origin,
-      destination,
+      origin: {
+        name: originName,
+        stations: stationManager.getStationsByName(originName)
+      },
+      destination: {
+        name: destName,
+        stations: stationManager.getStationsByName(destName)
+      },
       isLoading: true,
       results: []
     });
 
-    const result: Result = {
-      score: 1,
-      numberOfStations: 5,
-      numberOftransits: 1,
-      routes: [
-        {
-          id: '111',
-          from: {
-            name: 'Dhoby Ghaut',
-            line: 'EW',
-            number: 1
-          },
-          to: {
-            name: 'Bencoolen',
-            line: 'DT',
-            number: 2
-          }
-        },
-        {
-          id: '123',
-          from: {
-            name: 'Dhoby Ghaut',
-            line: 'EW',
-            number: 1
-          },
-          to: {
-            name: 'Bencoolen',
-            line: 'DT',
-            number: 2
-          },
-          changeLine: true
-        },
-        {
-          id: '132',
-          from: {
-            name: 'Dhoby Ghaut',
-            line: 'EW',
-            number: 1
-          },
-          to: {
-            name: 'Bencoolen',
-            line: 'DT',
-            number: 2
-          }
-        }
-      ]
-    };
-    const results: Result[] = [result, result];
+    const results = await stationManager.findRoutes(originName, destName);
+    const sortedResults = results.slice().sort((a, b) => {
+      const scoreA = a.numberOfStations + 5 * a.numberOfTransits;
+      const scoreB = b.numberOfStations + 5 * b.numberOfTransits;
 
-    setTimeout(() => {
-      this.setState({ isLoading: false, results });
-    }, 1000);
+      return scoreA - scoreB;
+    });
+
+    this.setState({ isLoading: false, results: sortedResults });
   }
 
   render() {
-    const stations = ['Bedok', 'Bras Basah', 'Dhoby Ghaut'];
-    const { results, isLoading } = this.state;
+    const { stations, results, isLoading } = this.state;
 
     return (
       <div className="app">

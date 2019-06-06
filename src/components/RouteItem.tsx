@@ -1,7 +1,7 @@
 import * as React from 'react';
 // @ts-ignore
 import { Pane, Text } from 'evergreen-ui';
-import { Route } from './ResultList';
+import { Route } from '../types';
 
 type Props = {
   route: Route;
@@ -17,7 +17,9 @@ const RouteItem: React.FC<Props> = props => {
     content = `Change to ${to.line} line`;
   } else {
     background = 'blueTint';
-    content = `Take ${from.line} line from ${from.line}${from.number} to ${to.line}${to.number}`;
+    content = `Take ${from.line} line from ${from.line}${from.number} (${from.name}) to ${to.line}${to.number} (${
+      to.name
+    })`;
   }
 
   return (
