@@ -1,17 +1,6 @@
 import { Reducer, AnyAction } from 'redux';
-import { Station, StationGroup } from '../../types';
-
-export interface StationState {
-  allStations: Station[];
-  stationNames: string[];
-  stationsByName: StationGroup;
-}
-
-interface ReduceFn {
-  [actionType: string]: (state: StationState, payload?: any) => StationState;
-}
-
-const reduceFn: ReduceFn = {};
+import reduceFn from './reducer';
+import { StationState } from './types';
 
 const initialState: StationState = {
   allStations: [],

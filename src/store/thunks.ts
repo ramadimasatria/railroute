@@ -1,35 +1,24 @@
-import { Dispatch } from 'redux';
-import { createAction } from 'redux-actions';
-import { RootState } from './reducers';
-import {
-  SEARCH_START,
-  SEARCH_DONE,
-  CLEAR_ROUTES,
-  PUSH_ROUTE,
-  PUSH_ROUTE_ID,
-  PUSH_RESULTS,
-  ADD_VISITED_LINE,
-  CLEAR_VISITED_LINES
-} from './actionTypes';
-import { getStationById, getItenaryPairs, getNextTransits, getStationDistance } from './selectors';
-import { Station, Itenary, Route, Result, stationId } from '../types';
+import { RootState } from './reducer';
 
-export const searchStart = createAction(SEARCH_START);
-export const searchDone = createAction(SEARCH_DONE);
-export const clearRoutes = createAction(CLEAR_ROUTES);
-export const pushRoute = createAction(PUSH_ROUTE);
-export const pushRouteId = createAction(PUSH_ROUTE_ID);
-export const pushResults = createAction(PUSH_RESULTS);
-export const clearVisitedLines = createAction(CLEAR_VISITED_LINES);
-export const addVisitedLine = createAction(ADD_VISITED_LINE);
+import { searchStart, searchDone, pushResults } from './modules/app/actions';
+import { clearVisitedLines, addVisitedLine } from './modules/line/actions';
+import { clearRoutes, pushRoute, pushRouteId } from './modules/route/actions';
+
+import { getStationById, getStationsByName, getItenaryPairs } from './modules/station/selectors';
+import { getNextTransits, getStationDistance } from './modules/line/selectors';
+
+import { Station, Itenary, Route, Result, stationId } from '../types';
 
 export const submitSearch = (origin: string, destination: string) => {
   return (dispatch: any) => {
     dispatch(searchStart({ origin, destination }));
+
+    // Wrap in setTimeout to make it async
     setTimeout(() => {
       dispatch(findRoutes());
       dispatch(compileResults());
       dispatch(searchDone());
+      dispatch(cleanup());
     }, 0);
   };
 };
@@ -38,10 +27,10 @@ const findRoutes = () => {
   return (dispatch: any, getState: any) => {
     const state: RootState = getState();
 
-    dispatch(clearRoutes());
-    dispatch(clearVisitedLines());
+    const origins = getStationsByName(state.station, state.app.origin);
+    const destinations = getStationsByName(state.station, state.app.destination);
 
-    const itenaries = getItenaryPairs(state);
+    const itenaries = getItenaryPairs(origins, destinations);
     itenaries.forEach((itenary, idx) => {
       dispatch(findNextRoute(itenary, String(idx)));
     });
@@ -54,11 +43,9 @@ const findNextRoute = (itenary: Itenary, routeId: string, depth = 1) => {
     const MAX_DEPTH = 3;
     const { from, to } = itenary;
 
-    console.log('depth', depth);
     if (depth > MAX_DEPTH) {
       return;
     }
-    console.log('depth', depth);
 
     // check if on the same line
     if (from.line === to.line) {
@@ -73,7 +60,7 @@ const findNextRoute = (itenary: Itenary, routeId: string, depth = 1) => {
       dispatch(createAndPushRoute(from, transit.station, transitRouteId));
 
       transit.nextLines.forEach((nextStationId, idx) => {
-        const nextStation = getStationById(state, nextStationId);
+        const nextStation = getStationById(state.station, nextStationId);
 
         // add next line to visited line so we won't get in endless transits
         dispatch(addVisitedLine(nextStation.line));
@@ -90,12 +77,14 @@ const findNextRoute = (itenary: Itenary, routeId: string, depth = 1) => {
   };
 };
 
+// Create route object and push to list of routes
+// also push the id to lastRouteIds if it's the last route
 const createAndPushRoute = (from: Station | stationId, to: Station | stationId, id: string, isLastRoute = false) => {
   return (dispatch: any, getState: any) => {
     const state: RootState = getState();
 
-    const fromStation = typeof from === 'number' ? getStationById(state, from) : from;
-    const toStation = typeof to === 'number' ? getStationById(state, to) : to;
+    const fromStation = typeof from === 'number' ? getStationById(state.station, from) : from;
+    const toStation = typeof to === 'number' ? getStationById(state.station, to) : to;
     const changeLine = fromStation.line !== toStation.line;
 
     const route: Route = {
@@ -103,7 +92,7 @@ const createAndPushRoute = (from: Station | stationId, to: Station | stationId, 
       from: fromStation,
       to: toStation,
       changeLine,
-      distance: getStationDistance(state, fromStation, toStation)
+      distance: getStationDistance(state.line, fromStation, toStation)
     };
 
     dispatch(pushRoute({ route }));
@@ -113,6 +102,7 @@ const createAndPushRoute = (from: Station | stationId, to: Station | stationId, 
   };
 };
 
+// Compile list of results based on lastRouteId and calculate the total distance
 const compileResults = () => {
   return (dispatch: any, getState: any) => {
     const state: RootState = getState();
@@ -147,5 +137,13 @@ const compileResults = () => {
     );
 
     dispatch(pushResults({ results }));
+  };
+};
+
+// Cleanup any temporary data
+const cleanup = () => {
+  return (dispatch: any) => {
+    dispatch(clearRoutes());
+    dispatch(clearVisitedLines());
   };
 };

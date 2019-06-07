@@ -1,5 +1,5 @@
 import { RawStations, Station, StationGroup, Transit, TransitGroup } from '../types';
-import { RootState } from './reducers';
+import { RootState } from './reducer';
 
 const normalizeStations = (rawStations: RawStations): Station[] => {
   const stations: Station[] = [];

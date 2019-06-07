@@ -1,7 +1,7 @@
 // import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { RootState } from '../store/reducers';
-import { submitSearch } from '../store/actionCreators';
+import { RootState } from '../store/reducer';
+import { submitSearch } from '../store/thunks';
 import SearchForm from './SearchForm';
 
 const mapStateToProps = (state: RootState) => {

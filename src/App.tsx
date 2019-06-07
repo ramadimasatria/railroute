@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 // @ts-ignore
 import { Text } from 'evergreen-ui';
-import { RootState } from './store/reducers';
+import { RootState } from './store/reducer';
 import SearchFormContainer from './components/SearchFormContainer';
 import ResultListContainer from './components/ResultListContainer';
 
