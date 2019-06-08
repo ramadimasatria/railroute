@@ -11,7 +11,7 @@ export interface Station {
   name: string;
   line: string;
   number: any;
-  transit: boolean;
+  transit?: boolean;
 }
 
 export interface StationGroup {
