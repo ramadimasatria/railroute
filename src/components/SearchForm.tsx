@@ -43,7 +43,7 @@ class SearchForm extends React.Component<Props, State> {
       <Pane marginBottom={24} paddingY={24} borderBottom>
         <form onSubmit={this.submitHandler}>
           <Pane display="flex" className="container">
-            <Pane display="flex" flex={1} paddingRight={12} flexAlignItems="flex-end">
+            <Pane display="flex" flex={1} paddingRight={12}>
               <SelectField
                 label="Origin station:"
                 width="100%"
@@ -63,7 +63,7 @@ class SearchForm extends React.Component<Props, State> {
               </SelectField>
             </Pane>
 
-            <Pane display="flex" flex={1} paddingRight={12} flexAlignItems="flex-end">
+            <Pane display="flex" flex={1} paddingRight={12}>
               <SelectField
                 label="Destination station:"
                 width="100%"
