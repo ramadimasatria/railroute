@@ -6,8 +6,6 @@ import { RootState } from './store/reducer';
 import SearchFormContainer from './components/SearchFormContainer';
 import ResultListContainer from './components/ResultListContainer';
 
-import './App.css';
-
 interface Props {
   isLoading: boolean;
   results: any[];
