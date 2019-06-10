@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/railroute/static/css/main.21794b01.chunk.css",
+    "main.js": "/railroute/static/js/main.41c0da54.chunk.js",
+    "main.js.map": "/railroute/static/js/main.41c0da54.chunk.js.map",
+    "runtime~main.js": "/railroute/static/js/runtime~main.1674756e.js",
+    "runtime~main.js.map": "/railroute/static/js/runtime~main.1674756e.js.map",
+    "static/js/2.a5a1abeb.chunk.js": "/railroute/static/js/2.a5a1abeb.chunk.js",
+    "static/js/2.a5a1abeb.chunk.js.map": "/railroute/static/js/2.a5a1abeb.chunk.js.map",
+    "index.html": "/railroute/index.html",
+    "precache-manifest.13efab75e4338755265517993e8683bc.js": "/railroute/precache-manifest.13efab75e4338755265517993e8683bc.js",
+    "service-worker.js": "/railroute/service-worker.js",
+    "static/css/main.21794b01.chunk.css.map": "/railroute/static/css/main.21794b01.chunk.css.map"
+  }
+}
